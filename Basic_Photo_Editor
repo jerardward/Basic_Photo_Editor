@@ -1,0 +1,181 @@
+from tkinter import *
+from tkinter import ttk
+from tkinter import filedialog
+from tkinter.filedialog import askopenfilename, asksaveasfilename
+from PIL import Image, ImageTk, ImageFilter, ImageEnhance, ImageOps
+import os
+
+
+class MainWindow:
+
+    def __init__(self):
+
+        self.v1 = IntVar()
+        self.v2 = IntVar()
+        self.v3 = IntVar()
+
+        self.img_blur2 = None
+        self.img_bright3 = None
+        self.img_cont3 = None
+        self.img_roll2 = None
+        self.img_flip2 = None
+        self.img_bor2 = None
+
+        self.main_win()
+
+    def main_win(self):
+
+        # Create the blurr Control
+        self.blur_con = Label(root, text="Blur:", font=("ariel 17 bold"), width=9, anchor='e')
+        self.blur_con.place(x=15, y=8)
+        self.blur_scale = ttk.Scale(root, from_=0, to=10, variable=self.v1, orient=HORIZONTAL, command=self.blur)
+        self.blur_scale.place(x=150, y=10)
+
+        # Create the brightness control
+        self.bright_con = Label(root, text="Brightness:", font=("ariel 17 bold"))
+        self.bright_con.place(x=8, y=50)
+        self.bright_scale = ttk.Scale(root, from_=0, to=10, variable=self.v2, orient=HORIZONTAL, command=self.brightness)
+        self.bright_scale.place(x=150, y=55)
+
+        # Create the contrast control
+        self.contrast_con = Label(root, text="Contrast:", font=("ariel 17 bold"))
+        self.contrast_con.place(x=35, y=92)
+        self.contrast_scale = ttk.Scale(root, from_=0, to=10, variable=self.v3, orient=HORIZONTAL, command=self.contrast)
+        self.contrast_scale.place(x=150, y=100)
+
+        # Create the rotation control
+        self.rotate_con = Label(root, text="Rotate:", font=("ariel 17 bold"))
+        self.rotate_con.place(x=370, y=8)
+        self.values = [0, 90, 180, 270, 360]
+        self.rotate_combo = ttk.Combobox(root, values=self.values, font=('ariel 10 bold'))
+        self.rotate_combo.place(x=460, y=15)
+        self.rotate_combo.bind("<<ComboboxSelected>>", self.rotate_image)
+
+        # Create the flip control
+        self.flip_con = Label(root, text="Flip:", font=("ariel 17 bold"))
+        self.flip_con.place(x=400, y=50)
+        self.values1 = ["FLIP LEFT TO RIGHT", "FLIP TOP TO BOTTOM"]
+        self.flip_combo = ttk.Combobox(root, values=self.values1, font=('ariel 10 bold'))
+        self.flip_combo.place(x=460, y=57)
+        self.flip_combo.bind("<<ComboboxSelected>>", self.flip_image)
+
+        # Create the border control
+        self.border_con = Label(root, text="Add border:", font=("ariel 17 bold"))
+        self.border_con.place(x=320, y=92)
+        self.values2 = [i for i in range(10, 45, 5)]
+        self.border_combo = ttk.Combobox(root, values=self.values2, font=("ariel 10 bold"))
+        self.border_combo.place(x=460, y=99)
+        self.border_combo.bind("<<ComboboxSelected>>", self.image_border)
+
+        # Create canvas to display image
+        self.canvas_dis = Canvas(root, width="600", height="420", relief=RIDGE, bd=2)
+        self.canvas_dis.place(x=15, y=150)
+
+        # Create buttons
+        self.select_btn = Button(root, text="Select Image", bg='black', fg='gold', font=('ariel 15 bold'), relief=GROOVE, command=self.selected)
+        self.select_btn.place(x=100, y=595)
+        self.save_btn = Button(root, text="Save", width=12, bg='black', fg='gold', font=('ariel 15 bold'), relief=GROOVE, command=self.save)
+        self.save_btn.place(x=280, y=595)
+        self.exit_btn = Button(root, text="Exit", width=12, bg='black', fg='gold', font=('ariel 15 bold'), relief=GROOVE, command=root.destroy)
+        self.exit_btn.place(x=460, y=595)
+
+    def selected(self):
+
+        self.img_path = filedialog.askopenfilename(initialdir=os.getcwd())
+        self.img_sel = Image.open(self.img_path)
+        self.img_sel.thumbnail((350, 350))
+        # img_sel1 = img.filter(ImageFilter.BoxBlur(0))
+        self.img_sel2 = ImageTk.PhotoImage(self.img_sel)
+        self.canvas_dis.create_image(300, 210, image=self.img_sel2)
+        self.canvas_dis.image = self.img_sel2
+
+    def blur(self, event):
+
+        for m in range(0, self.v1.get() + 1):
+            self.img_blur = Image.open(self.img_path)
+            self.img_blur.thumbnail((350, 350))
+            self.img_blur1 = self.img_blur.filter(ImageFilter.BoxBlur(m))
+            self.img_blur2 = ImageTk.PhotoImage(self.img_blur1)
+            self.canvas_dis.create_image(300, 210, image=self.img_blur2)
+            self.canvas_dis.image = self.img_blur2
+
+    def brightness(self, event):
+
+        for m in range(0, self.v2.get() + 1):
+            self.img_bright = Image.open(self.img_path)
+            self.img_bright.thumbnail((350, 350))
+            self.img_bright1 = ImageEnhance.Brightness(self.img_bright)
+            self.img_bright2 = self.img_bright1.enhance(m)
+            self.img_bright3 = ImageTk.PhotoImage(self.img_bright2)
+            self.canvas_dis.create_image(300, 210, image=self.img_bright3)
+            self.canvas_dis.image = self.img_bright3
+
+    def contrast(self, event):
+
+        for m in range(0, self.v3.get() + 1):
+            self.img_cont = Image.open(self.img_path)
+            self.img_cont.thumbnail((350, 350))
+            self.img_cont1 = ImageEnhance.Contrast(self.img_cont)
+            self.img_cont2 = self.img_cont1.enhance(m)
+            self.img_cont3 = ImageTk.PhotoImage(self.img_cont2)
+            self.canvas_dis.create_image(300, 210, image=self.img_cont3)
+            self.canvas_dis.image = self.img_cont3
+
+    def rotate_image(self, event):
+
+        self.img_roll = Image.open(self.img_path)
+        self.img_roll.thumbnail((350, 350))
+        self.img_roll1 = self.img_roll.rotate(int(self.rotate_combo.get()))
+        self.img_roll2 = ImageTk.PhotoImage(self.img_roll1)
+        self.canvas_dis.create_image(300, 210, image=self.img_roll2)
+        self.canvas_dis.image = self.img_roll2
+
+    def flip_image(self, event):
+
+        self.img_flip = Image.open(self.img_path)
+        self.img_flip.thumbnail((350, 350))
+        if self.flip_combo.get() == "FLIP LEFT TO RIGHT":
+            self.img_flip1 = self.img_flip.transpose(Image.FLIP_LEFT_RIGHT)
+        elif self.flip_combo.get() == "FLIP TOP TO BOTTOM":
+            self.img_flip1 = self.img_flip.transpose(Image.FLIP_TOP_BOTTOM)
+        self.img_flip2 = ImageTk.PhotoImage(self.img_flip1)
+        self.canvas_dis.create_image(300, 210, image=self.img_flip2)
+        self.canvas_dis.image = self.img_flip2
+
+    def image_border(self, event):
+
+        self.img_bor = Image.open(self.img_path)
+        self.img_bor.thumbnail((350, 350))
+        self.img_bor1 = ImageOps.expand(self.img_bor, border=int(self.border_combo.get()), fill=95)
+        self.img_bor2 = ImageTk.PhotoImage(self.img_bor1)
+        self.canvas_dis.create_image(300, 210, image=self.img_bor2)
+        self.canvas_dis.image = self.img_bor2
+
+    def save(self):
+
+        # self.file=None
+        self.ext = self.img_path.split(".")[-1]
+        self.file = asksaveasfilename(defaultextension=f".{self.ext}",
+                                      filetypes=[("All Files", "*.*"), ("PNG file", "*.png"), ("jpg file", "*.jpg")])
+        if self.file:
+            if self.canvas_dis.image == self.img_blur2:
+                self.img_blur1.save(self.file)
+            elif self.canvas_dis.image == self.img_bright3:
+                self.img_bright2.save(self.file)
+            elif self.canvas_dis.image == self.img_cont3:
+                self.img_cont2.save(self.file)
+            elif self.canvas_dis.image == self.img_roll2:
+                self.img_roll1.save(self.file)
+            elif self.canvas_dis.image == self.img_flip2:
+                self.img_flip1.save(self.file)
+            elif self.canvas_dis.image == self.img_bor2:
+                self.img_bor1.save(self.file)
+
+
+
+if __name__ == '__main__':
+    root = Tk()
+    root.title("Simple Photo Editor")
+    root.geometry("640x640")
+    MainWindow()
+    root.mainloop()
